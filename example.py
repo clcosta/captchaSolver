@@ -6,13 +6,12 @@ async def main(chrome: BrowserType):
     browser = await chrome.launch(headless=False)
     page = await browser.new_page()
     await page.goto(
-        'https://my.outbrain.com/login?utm_source=www.outbrain.com'
+        'https://patrickhlauke.github.io/recaptcha/'
     )
-    await page.type(
-        '[name="loginUsername"]', 'hekina6541@alvisani.com', delay=100
-    )
-    await page.type('[name="loginPassword"]', '1231231', delay=100)
-    await page.click('[id="loginButton"]')
+    element_handle = await page.wait_for_selector('iframe[title="reCAPTCHA"]')
+    captcha = await element_handle.content_frame()
+    captcha_checkbox = await captcha.wait_for_selector('.recaptcha-checkbox-border')
+    await captcha_checkbox.click()
     await capcha_solver(page)
     await page.wait_for_timeout(10000)
 

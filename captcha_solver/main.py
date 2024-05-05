@@ -1,3 +1,4 @@
+import os
 import tempfile
 import requests
 from playwright.async_api import Page, Frame
@@ -11,7 +12,7 @@ async def get_iframe(page: Page | Frame, selector: str) -> Frame:
     return frame
 
 async def capcha_solver(page: Page) -> None:
-    captcha_frame = await get_iframe(page, 'iframe[title="o desafio reCAPTCHA expira em dois minutos"]')
+    captcha_frame = await get_iframe(page, 'iframe[title^="o desafio reCAPTCHA"]')
     if not captcha_frame:
         print("Captcha frame not found")
         return
@@ -20,7 +21,7 @@ async def capcha_solver(page: Page) -> None:
     audio_element = await captcha_frame.query_selector('audio')
     audio_src = await audio_element.get_attribute('src')
     temp_dir = temp_dir = tempfile.TemporaryDirectory(dir=tempfile.gettempdir())
-    audio_path = temp_dir.name + '/audio_captcha.mp3'
+    audio_path = os.path.join(temp_dir.name,'audio_captcha.mp3')
     with open(audio_path, 'wb') as f:
         audio_content = requests.get(audio_src).content
         f.write(audio_content)
